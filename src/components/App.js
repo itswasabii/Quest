@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import InterviewManager from "./InterviewManager";
 import UpdateInterview from "./UpdateInterview";
 import UserDashboard from "./UserDashboard";
+import InterviewPage from "./InterviewPage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route exact path="/" component={InterviewManager} />
           <Route path="/interviews/:id" component={UpdateInterview} />
           <Route path="/dashboard/:id" component={UserDashboard} />
+          <Route path="/interview" component={InterviewPage} />
         </Switch>
       </div>
     </Router>

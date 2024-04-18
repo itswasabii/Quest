@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 app = Flask(__name__)
-
 CORS(app, origins=["http://localhost:3000"])
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobs.db'
 db = SQLAlchemy(app)
@@ -25,14 +24,13 @@ class UserApplication(db.Model):
 # Initialize database
 with app.app_context():
     db.create_all()
-# Routes for Job Listings
 
+# Routes for Job Listings
 @app.route('/admin/joblistings', methods=['GET', 'POST'])
 def admin_job_listings():
     if request.method == 'GET':
         listings = JobListing.query.all()
         return jsonify([{'id': listing.id, 'title': listing.title, 'description': listing.description, 'status': listing.status} for listing in listings])
-
     elif request.method == 'POST':
         data = request.json
         new_listing = JobListing(title=data['title'], description=data['description'])
@@ -45,7 +43,6 @@ def admin_applications():
     if request.method == 'GET':
         applications = UserApplication.query.all()
         return jsonify([{'id': application.id, 'user_id': application.user_id, 'job_listing_id': application.job_listing_id, 'status': application.status} for application in applications])
-
     elif request.method == 'PUT':
         data = request.json
         application = UserApplication.query.get(data['id'])
@@ -55,6 +52,26 @@ def admin_applications():
             return jsonify({'message': 'Application status updated successfully'}), 200
         else:
             return jsonify({'error': 'Application not found'}), 404
+
+# User authentication routes
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    users = {'example@example.com': 'password'}  # Moved the users dictionary here
+    if email in users and users[email] == password:
+        return jsonify({'message': 'Login successful', 'token': 'dummy-token'}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 401
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    return jsonify({'message': 'Logout successful'}), 200
+
+@app.route('/')
+def index():
+    return '<h1>Project Server</h1>'
 
 if __name__ == '__main__':
     app.run(debug=True)

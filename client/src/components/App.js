@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
+import AdminPanel from "./AdminPanel";
+import '/home/victor/phase-4/quest/client/src/index.css'
 
 function App() {
-  return <h1>Project Client</h1>;
+  return (
+    <AdminPanel />
+  );
 }
 
 export default App;

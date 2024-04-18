@@ -75,11 +75,14 @@ function AdminPanel() {
             <h3>Job Listings:</h3>
             <ul>
                 {listings.map(listing => (
-                    <li key={listing.id}>
-                        <h4>{listing.title}</h4>
-                        <p>{listing.description}</p>
-                        <p>Status: {listing.status}</p>
-                    </li>
+                    <div className='container'>
+                        <li key={listing.id}>
+                            <h4>{listing.title}</h4>
+                            <p>{listing.description}</p>
+                            <p>Status: {listing.status}</p>
+                        </li>
+                    </div>
+
                 ))}
             </ul>
 

@@ -4,8 +4,10 @@ import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage';
 import Navbar from './Navbar';
 import AdminPanel from './AdminPanel';
-import '/home/victor/project/quest/client/src/index.css';
 import UserDashboard from './UserDashboard';
+import InterviewPage from './InterviewPage';
+import UpdateInterview from './UpdateInterview';
+import '/home/victor/project/quest/client/src/index.css';
 
 function App() {
   const userId = 1; 
@@ -21,6 +23,9 @@ function App() {
         
         {/* Route for profile page */}
         <Route path="/profile" component={ProfilePage} />
+        
+        {/* Route for updating interviews */}
+        <Route path="/interviews/:id" component={UpdateInterview} />
         
         {/* Define a default route for the home page */}
         <Route path="/" exact>

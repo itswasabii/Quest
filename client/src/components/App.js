@@ -1,39 +1,43 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage';
 import Navbar from './Navbar';
-import AdminPanel from './AdminPanel';
 import '/home/victor/project/quest/client/src/index.css';
 import UserDashboard from './UserDashboard';
+import AdminPanel from './AdminPanel'; // Import AdminPanel
 
 function App() {
   const userId = 1; 
 
   return (
-    <div className="App">
-      <Navbar />
+    <Router>
+      <div className="App">
+        <Navbar />
 
-      {/* Use Switch to handle routing */}
-      <Switch>
-        {/* Route for registration form */}
-        <Route path="/register" component={RegistrationForm} />
-        
-        {/* Route for profile page */}
-        <Route path="/profile" component={ProfilePage} />
-        
-        {/* Define a default route for the home page */}
-        <Route path="/" exact>
-          <h2>Welcome to the Home Page</h2>
-          {/* Add other components or content for the home page here */}
-        </Route>
-      </Switch>
+        {/* Use Switch to handle routing */}
+        <Switch>
+          {/* Route for registration form */}
+          <Route path="/register" component={RegistrationForm} />
+          
+          {/* Route for profile page */}
+          <Route path="/profile" component={ProfilePage} />
+          
+          {/* Route for AdminPanel */}
+          <Route path="/admin" component={AdminPanel} />
 
-      {/* Render AdminPanel outside of the Switch */}
-      {/* <AdminPanel /> */}
-      { <UserDashboard userId={userId} /> }
+          {/* Define a default route for the home page */}
+          <Route path="/" exact>
+            <h2>Welcome to the Home Page</h2>
+            {/* Add other components or content for the home page here */}
+          </Route>
+        </Switch>
 
-    </div>
+        {/* Render UserDashboard outside of the Switch */}
+        <UserDashboard userId={userId} />
+
+      </div>
+    </Router>
   );
 }
 

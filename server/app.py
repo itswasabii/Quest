@@ -9,6 +9,7 @@ from flask_mail import Mail, Message
 from flask_migrate import Migrate
 
 # Initialize the app and CORS
+# Initialize CORS and the app
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})  # Adjust the allowed origin as needed
 
@@ -19,12 +20,82 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 migrate = Migrate(app, db)
 
+
+CORS(app, origins=["http://localhost:3000"])
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobs.db'
+db = SQLAlchemy(app)
+
+# Define JobListing model
+class JobListing(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(50), default='Active')
+
+# Define UserApplication model
+class UserApplication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    job_listing_id = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(50), default='Pending')
+
+# Initialize database
+with app.app_context():
+    db.create_all()
+
+# Routes for Job Listings
+@app.route('/admin/joblistings', methods=['GET', 'POST'])
+def admin_job_listings():
+    if request.method == 'GET':
+        listings = JobListing.query.all()
+        return jsonify([{'id': listing.id, 'title': listing.title, 'description': listing.description, 'status': listing.status} for listing in listings])
+    elif request.method == 'POST':
+        data = request.json
+        new_listing = JobListing(title=data['title'], description=data['description'])
+        db.session.add(new_listing)
+        db.session.commit()
+        return jsonify({'message': 'Job listing added successfully'}), 201
+
+@app.route('/admin/applications', methods=['GET', 'PUT'])
+def admin_applications():
+    if request.method == 'GET':
+        applications = UserApplication.query.all()
+        return jsonify([{'id': application.id, 'user_id': application.user_id, 'job_listing_id': application.job_listing_id, 'status': application.status} for application in applications])
+    elif request.method == 'PUT':
+        data = request.json
+        application = UserApplication.query.get(data['id'])
+        if application:
+            application.status = data['status']
+            db.session.commit()
+            return jsonify({'message': 'Application status updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Application not found'}), 404
+
+# User authentication routes
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    users = {'example@example.com': 'password'}  # Moved the users dictionary here
+    if email in users and users[email] == password:
+        return jsonify({'message': 'Login successful', 'token': 'dummy-token'}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 401
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    return jsonify({'message': 'Logout successful'}), 200
+ 
+
 # Configure mail settings
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'wasabiijnr@gmail.com'  # Replace with your email
-app.config['MAIL_PASSWORD'] = 'Accusationsfalseaccussations'  # Replace with your email password
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your-email-password'
+
+
 mail = Mail(app)
 
 # Define the User model
@@ -158,8 +229,8 @@ def register_user():
     except Exception as e:
         print(f"Error registering user: {e}")
         return jsonify({'error': 'Internal server error'}), 500
-
-# Verification endpoint
+    # Define the verification endpoint
+    
 @app.route('/api/verify-email/<token>', methods=['GET'])
 def verify_email(token):
     try:
@@ -174,11 +245,11 @@ def verify_email(token):
         db.session.commit()
         
         return jsonify({'message': 'Email verified successfully'}), 200
-    
-    except Exception as e:
-        print(f"Error verifying email: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
-
+    except:
+        return jsonify({'error': 'Invalid or expired token'}), 400
+ 
 # Start the Flask app
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
+
+

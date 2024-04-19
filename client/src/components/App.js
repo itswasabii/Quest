@@ -1,18 +1,18 @@
-
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import RegistrationForm from './RegistrationForm';
-import ProfilePage from './ProfilePage'; // Import the ProfilePage component
-import Navbar from './Navbar.js';
-import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
-import AdminPanel from "./AdminPanel";
-import '/home/victor/phase-4/quest/client/src/index.css'
+import ProfilePage from './ProfilePage';
+import Navbar from './Navbar';
+import AdminPanel from './AdminPanel';
+import '/home/victor/project/quest/client/src/index.css';
+import UserDashboard from './UserDashboard';
 
 function App() {
+  const userId = 1; 
+
   return (
     <div className="App">
-       <Navbar />
+      <Navbar />
 
       {/* Use Switch to handle routing */}
       <Switch>
@@ -28,12 +28,12 @@ function App() {
           {/* Add other components or content for the home page here */}
         </Route>
       </Switch>
+
+      {/* Render AdminPanel outside of the Switch */}
+      {/* <AdminPanel /> */}
+      { <UserDashboard userId={userId} /> }
+
     </div>
-
-
-
-    <AdminPanel />
-
   );
 }
 

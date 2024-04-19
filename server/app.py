@@ -20,11 +20,12 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 # Initialize Mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USERNAME'] = '826b1a7105478e'
+app.config['MAIL_PASSWORD'] = '99a571bbd34f7c'
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your-email-password'
+app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
 
 # Define JobListing model
@@ -130,6 +131,24 @@ def user_profile():
         db.session.commit()
         return jsonify(user_schema.dump(user))
 
+
+# Define the function to send verification email
+def send_verification_email(user_email, token):
+    # Create the verification link
+    verification_link = f"http://localhost:5555/api/verify-email/{token}"
+    
+    # Create the message
+    msg = Message(
+        subject='Verify Your Email Address',
+        sender='your-email@gmail.com',
+        recipients=[user_email]
+    )
+    msg.body = f"Please verify your email by clicking on the following link: {verification_link}"
+    
+    # Send the email
+    mail.send(msg)
+
+
 @app.route('/api/register', methods=['POST'])
 def register_user():
     try:
@@ -168,6 +187,7 @@ def register_user():
             resume=resume,
             email_verification_token=verification_token
         )
+        
         db.session.add(new_user)
         db.session.commit()
 

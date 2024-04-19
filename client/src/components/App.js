@@ -4,8 +4,8 @@ import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage';
 import Navbar from './Navbar';
 import AdminPanel from './AdminPanel';
-import '/home/victor/project/quest/client/src/index.css';
 import UserDashboard from './UserDashboard';
+import LoginForm from './Login';
 
 function App() {
   const userId = 1; 
@@ -21,6 +21,9 @@ function App() {
         
         {/* Route for profile page */}
         <Route path="/profile" component={ProfilePage} />
+
+        {/* Route for profile page */}
+        <Route path="/Login" component={LoginForm} />
         
         {/* Define a default route for the home page */}
         <Route path="/" exact>
@@ -30,7 +33,7 @@ function App() {
       </Switch>
 
       {/* Render AdminPanel outside of the Switch */}
-      {/* <AdminPanel /> */}
+      { <AdminPanel /> }
       { <UserDashboard userId={userId} /> }
 
     </div>

@@ -3,9 +3,10 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage';
 import Navbar from './Navbar';
-import '/home/victor/project/quest/client/src/index.css';
+import AdminPanel from './AdminPanel';
 import UserDashboard from './UserDashboard';
-import AdminPanel from './AdminPanel'; // Import AdminPanel
+import UpdateInterview from './UpdateInterview';
+import '/home/victor/project/quest/client/src/index.css';
 
 function App() {
   const userId = 1; 
@@ -23,6 +24,9 @@ function App() {
           {/* Route for profile page */}
           <Route path="/profile" component={ProfilePage} />
           
+          {/* Route for updating interviews */}
+          <Route path="/interviews/:id" component={UpdateInterview} />
+
           {/* Route for AdminPanel */}
           <Route path="/admin" component={AdminPanel} />
 
@@ -35,7 +39,6 @@ function App() {
 
         {/* Render UserDashboard outside of the Switch */}
         <UserDashboard userId={userId} />
-
       </div>
     </Router>
   );

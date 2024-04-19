@@ -1,8 +1,19 @@
-import React from "react";
-import App from "./components/App";
-import "./index.css";
-import { createRoot } from "react-dom/client";
+import React from 'react';
+import { createRoot } from 'react-dom/client'; // Import createRoot from react-dom/client
+import { BrowserRouter } from 'react-router-dom';
+import App from './components/App';
 
-const container = document.getElementById("root");
-const root = createRoot(container);
-root.render(<App />);
+// Get the root DOM element
+const rootElement = document.getElementById('root');
+
+// Create a root using createRoot
+const root = createRoot(rootElement);
+
+// Use the root to render your app
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);

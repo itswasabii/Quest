@@ -1,8 +1,13 @@
+
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage'; // Import the ProfilePage component
 import Navbar from './Navbar.js';
+import React, { useEffect, useState } from "react";
+import { Switch, Route } from "react-router-dom";
+import AdminPanel from "./AdminPanel";
+import '/home/victor/phase-4/quest/client/src/index.css'
 
 function App() {
   return (
@@ -24,6 +29,11 @@ function App() {
         </Route>
       </Switch>
     </div>
+
+
+
+    <AdminPanel />
+
   );
 }
 

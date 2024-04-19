@@ -20,12 +20,15 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 # Initialize Mail
+
 app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
 app.config['MAIL_PORT'] = 2525
 app.config['MAIL_USERNAME'] = '826b1a7105478e'
 app.config['MAIL_PASSWORD'] = '99a571bbd34f7c'
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
+
+n
 mail = Mail(app)
 
 # Define JobListing model
@@ -147,6 +150,8 @@ def send_verification_email(user_email, token):
     
     # Send the email
     mail.send(msg)
+
+
 
 
 @app.route('/api/register', methods=['POST'])

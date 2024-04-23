@@ -15,8 +15,7 @@ from sqlalchemy import Column, Boolean, Engine
 from sqlalchemy import text
 from flask import Flask, jsonify
 from sqlalchemy import create_engine
-
-<<<<<<< HEAD
+from flask import Flask, send_from_directory
 
 
 
@@ -28,16 +27,10 @@ jwt = JWTManager(app)
 
 app.config['JWT_SECRET_KEY'] = '4927'
 
-=======
-# Initialize the Flask app
-app = Flask(__name__)
-
->>>>>>> main
 # Configure CORS
 CORS(app, origins=["http://localhost:3000"])
 
 # Configure database connection
-<<<<<<< HEAD
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobss.db'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -45,12 +38,6 @@ ma = Marshmallow(app)
 
 verification_tokens = {}
 
-=======
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobs.db'
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
-
->>>>>>> main
 # Initialize Mail
 app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
 app.config['MAIL_PORT'] = 2525
@@ -59,12 +46,9 @@ app.config['MAIL_PASSWORD'] = '99a571bbd34f7c'
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
-<<<<<<< HEAD
 
 
 
-=======
->>>>>>> main
 
 # Define JobListing model
 class JobListing(db.Model):
@@ -94,7 +78,6 @@ class User(db.Model):
     resume = db.Column(db.String(100), nullable=True)
     is_email_verified = db.Column(db.Boolean, default=False)
     email_verification_token = db.Column(db.String(100), nullable=True)
-<<<<<<< HEAD
     is_locked = db.Column(db.Boolean, default=False)
     is_disabled = db.Column(db.Boolean, default=False)
 
@@ -111,6 +94,9 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
+@app.route('/')
+def serve_react_app():
+    return send_from_directory('path/to/react_app/build', 'index.html')
 
 @app.route('/test-db-connection')
 def test_db_connection():
@@ -127,21 +113,6 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
-=======
-
-# Initialize database
-with app.app_context():
-    db.create_all()
-
-# Define a schema for serializing User data
-class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = User
-
-user_schema = UserSchema()
-users_schema = UserSchema(many=True)
-
->>>>>>> main
 @app.route('/admin/joblistings', methods=['GET', 'POST'])
 def admin_job_listings():
     if request.method == 'GET':
@@ -169,11 +140,7 @@ def admin_applications():
         else:
             return jsonify({'error': 'Application not found'}), 404
 
-<<<<<<< HEAD
 @app.route('/api/login', methods=['POST'])
-=======
-@app.route('/login', methods=['POST'])
->>>>>>> main
 def login():
     data = request.json
     email = data.get('email')
@@ -209,29 +176,21 @@ def login():
 def logout():
     return jsonify({'message': 'Logout successful'}), 200
 
-<<<<<<< HEAD
 def extract_jwt_token():
     auth_header = request.headers.get('Authorization')
     if auth_header and auth_header.startswith('Bearer '):
         return auth_header.split(' ')[1]
     return None
 
-=======
->>>>>>> main
 @app.route('/api/user/profile', methods=['GET', 'PUT'])
 @jwt_required()  # This decorator ensures that the request contains a valid JWT token
 def user_profile():
-<<<<<<< HEAD
     auth_token = extract_jwt_token()
     if not auth_token:
         return jsonify({'error': 'Authorization token is missing'}), 401
 
     user_id = get_jwt_identity()  # This function returns the identity (user id) stored in the JWT token
     user = User.query.get(user_id)
-=======
-    user_email = 'user@example.com'
-    user = User.query.filter_by(email=user_email).first()
->>>>>>> main
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
@@ -249,7 +208,6 @@ def user_profile():
         return jsonify(user_schema.dump(user))
 
 
-<<<<<<< HEAD
 #from flask import render_template_string
 
 def send_verification_email(user_email, token):
@@ -264,38 +222,20 @@ def send_verification_email(user_email, token):
         verification_link=verification_link
     )
 
-=======
-# Define the function to send verification email
-def send_verification_email(user_email, token):
-    # Create the verification link
-    verification_link = f"http://localhost:5555/api/verify-email/{token}"
-    
-    # Create the message
->>>>>>> main
     msg = Message(
         subject='Verify Your Email Address',
         sender='your-email@gmail.com',
         recipients=[user_email]
     )
-<<<<<<< HEAD
     msg.html = email_body
     
     # Send the email
     mail.send(msg)
     
-=======
-    msg.body = f"Please verify your email by clicking on the following link: {verification_link}"
-    
-    # Send the email
-    mail.send(msg)
-
-
->>>>>>> main
 @app.route('/api/register', methods=['POST'])
 def register_user():
     try:
         data = request.form
-<<<<<<< HEAD
 
         # Check if 'resume' field exists in the request files
         if 'resume' not in request.files:
@@ -307,8 +247,6 @@ def register_user():
         if not resume_filename:
             return jsonify({'error': 'Failed to save resume'}), 500
 
-=======
->>>>>>> main
         required_fields = ['name', 'email', 'password', 'education', 'relevant_skills', 'profession', 'desired_job_role']
         for field in required_fields:
             if field not in data or not data[field]:
@@ -320,25 +258,11 @@ def register_user():
 
         verification_token = str(uuid.uuid4())
         hashed_password = generate_password_hash(data['password'])
-<<<<<<< HEAD
 
         # Send verification email
         send_verification_email(data['email'], verification_token)
 
         # Create new user
-=======
-        RESUME_DIR = os.path.join(app.root_path, 'resumes')
-        if not os.path.exists(RESUME_DIR):
-            os.makedirs(RESUME_DIR)
-        resume = None
-        if 'resume' in request.files:
-            resume_file = request.files['resume']
-            if resume_file:
-                resume_filename = os.path.join(RESUME_DIR, resume_file.filename)
-                resume_file.save(resume_filename)
-                resume = resume_filename
-        
->>>>>>> main
         new_user = User(
             name=data['name'],
             email=data['email'],
@@ -348,7 +272,6 @@ def register_user():
             relevant_skills=data['relevant_skills'],
             profession=data['profession'],
             desired_job_role=data['desired_job_role'],
-<<<<<<< HEAD
             resume=resume_filename,
             email_verification_token=verification_token
         )
@@ -358,23 +281,12 @@ def register_user():
         new_user.email_verification_token = verification_token
         db.session.commit()
 
-=======
-            resume=resume,
-            email_verification_token=verification_token
-        )
-        
-        db.session.add(new_user)
-        db.session.commit()
-
-        send_verification_email(data['email'], verification_token)
->>>>>>> main
         return jsonify(user_schema.dump(new_user)), 201
         
     except Exception as e:
         print(f'Error registering user: {e}')
         return jsonify({'error': 'Internal server error'}), 500
 
-<<<<<<< HEAD
 
     
 def save_resume(resume_file):
@@ -451,80 +363,10 @@ def update_application_status():
     if application:
         application.status = status
         db.session.commit()
-=======
-@app.route('/api/verify-email/<token>', methods=['GET'])
-def verify_email(token):
-    try:
-        serializer = Serializer(app.config['SECRET_KEY'], salt='email-verification')
-        email = serializer.loads(token, max_age=3600)
-        user = User.query.filter_by(email=email).first()
-        if user is None:
-            return jsonify({'error': 'Invalid token or user not found'}), 400
-        
-        if user.is_email_verified:
-            return jsonify({'message': 'Email already verified'}), 200
-        
-        user.is_email_verified = True
-        db.session.commit()
-        
-        return jsonify({'message': 'Email verified successfully'}), 200
-    
-    except Exception as e:
-        print(e)
-        return jsonify({'error': 'Invalid or expired token'}), 400
-    
-@app.route('/user/applications/<int:user_id>', methods=['GET'])
-def get_user_applications(user_id):
-    user_applications = UserApplication.query.filter_by(user_id=user_id).all()
-    
-    applications_data = []
-    for app in user_applications:
-        job_listing = JobListing.query.get(app.job_listing_id)
-        applications_data.append({
-            'id': app.id,
-            'job_title': job_listing.title if job_listing else 'Unknown',
-            'status': app.status
-        })
-    
-    return jsonify(applications_data)    
-
-@app.route('/api/joblistings', methods=['GET'])
-def get_job_listings():
-    listings = JobListing.query.all()
-    return jsonify([{'id': listing.id, 'title': listing.title, 'description': listing.description, 'status': listing.status} for listing in listings])
-@app.route('/api/apply', methods=['POST'])
-def apply_for_job():
-    data = request.json
-    user_id = data.get('user_id')
-    job_listing_id = data.get('job_listing_id')
-    
-    # Check if the user has already applied for this job
-    existing_application = UserApplication.query.filter_by(user_id=user_id, job_listing_id=job_listing_id).first()
-    if existing_application:
-        return jsonify({'error': 'You have already applied for this job'}), 400
-    
-    new_application = UserApplication(user_id=user_id, job_listing_id=job_listing_id)
-    db.session.add(new_application)
-    db.session.commit()
-    
-    return jsonify({'message': 'Application submitted successfully'}), 201
-
-@app.route('/admin/application/status', methods=['PUT'])
-def update_application_status():
-    data = request.json
-    application_id = data.get('application_id')
-    status = data.get('status')
-    
-    application = UserApplication.query.get(application_id)
-    if application:
-        application.status = status
-        db.session.commit()
->>>>>>> main
         return jsonify({'message': 'Application status updated successfully'}), 200
     else:
         return jsonify({'error': 'Application not found'}), 404
 
-<<<<<<< HEAD
 def add_is_locked_column():
     # Create a SQL query to add the column to the table
     query = text('ALTER TABLE user ADD COLUMN is_locked BOOLEAN DEFAULT FALSE')
@@ -536,8 +378,3 @@ def add_is_locked_column():
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
-=======
-
-if __name__ == '__main__':
-    app.run(port=5555, debug=True)
->>>>>>> main

@@ -96,7 +96,7 @@ users_schema = UserSchema(many=True)
 
 @app.route('/')
 def serve_react_app():
-    return send_from_directory('path/to/react_app/build', 'index.html')
+    return send_from_directory('client/build', 'index.html')
 
 @app.route('/test-db-connection')
 def test_db_connection():

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage';
 import Navbar from './Navbar';
@@ -47,8 +47,6 @@ import UserDashboard from './UserDashboard';
 import LoginForm from './Login';
 
 function App() {
-  const userId = 1; 
-
   return (
     <div className="App">
       <Navbar />

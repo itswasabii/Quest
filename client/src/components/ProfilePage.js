@@ -4,14 +4,24 @@ import './ProfilePage.css';
 
 const ProfilePage = () => {
     const [userData, setUserData] = useState({});
-    const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
+    const [isEditing, setIsEditing] = useState(false);
 
-    // Fetch user data from the back end
+    // Fetch user data from the backend
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get('/api/user/profile');
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    // Handle case where authentication token is missing
+                    return;
+                }
+
+                const response = await axios.get('/api/user/profile', {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`
+                    }
+                });
                 setUserData(response.data);
                 setFormData(response.data);
             } catch (error) {
@@ -23,20 +33,39 @@ const ProfilePage = () => {
     }, []);
 
     // Handle form change
-    const handleChange = (event) => {
-        const { name, value } = event.target;
+const handleChange = (event) => {
+    const { name, value } = event.target;
+    if (name === 'relevant_skills') {
+        // If relevant_skills is an object, convert it to a string
+        if (typeof value === 'object') {
+            const relevantSkillsString = JSON.stringify(value);
+            setFormData({ ...formData, [name]: relevantSkillsString });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
+    } else {
         setFormData({ ...formData, [name]: value });
-    };
+    }
+};
 
     // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            await axios.put('/api/user/profile', formData);
+            const authToken = localStorage.getItem('authToken');
+            await axios.put('/api/user/profile', formData, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`
+                }
+            });
             alert('Profile updated successfully');
             setIsEditing(false);
             // Refresh user data
-            const response = await axios.get('/api/user/profile');
+            const response = await axios.get('/api/user/profile', {
+                headers: {
+                    Authorization: `Bearer ${authToken}`
+                }
+            });
             setUserData(response.data);
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -44,12 +73,18 @@ const ProfilePage = () => {
         }
     };
 
+    // Handle logout
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        window.location.reload(); // Reload the page to clear the user data
+    };
+
     return (
-        <div>
+        <div className="profile-container">
             <h2>User Profile</h2>
             {isEditing ? (
                 // Render the edit form
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="profile-form">
                     <div>
                         <label>Name:</label>
                         <input
@@ -64,9 +99,9 @@ const ProfilePage = () => {
                         <input
                             type="email"
                             name="email"
-                            value={formData.email}
+                            value={formData.email || ''}
                             onChange={handleChange}
-                            disabled
+                            disabled // Email is disabled for editing
                         />
                     </div>
                     <div>
@@ -74,7 +109,7 @@ const ProfilePage = () => {
                         <input
                             type="text"
                             name="phone_number"
-                            value={formData.phone_number}
+                            value={formData.phone_number || ''}
                             onChange={handleChange}
                         />
                     </div>
@@ -83,25 +118,25 @@ const ProfilePage = () => {
                         <input
                             type="text"
                             name="education"
-                            value={formData.education}
+                            value={formData.education || ''}
                             onChange={handleChange}
                         />
                     </div>
                     <div>
-                        <label>Relevant Skills:</label>
-                        <input
-                            type="text"
-                            name="relevant_skills"
-                            value={formData.relevant_skills}
-                            onChange={handleChange}
-                        />
-                    </div>
+        <label>Relevant Skills:</label>
+        <input
+            type="text"
+            name="relevant_skills"
+            value={typeof formData.relevant_skills === 'object' ? JSON.stringify(formData.relevant_skills) : formData.relevant_skills}
+            onChange={handleChange}
+        />
+    </div>
                     <div>
                         <label>Profession:</label>
                         <input
                             type="text"
                             name="profession"
-                            value={formData.profession}
+                            value={formData.profession || ''}
                             onChange={handleChange}
                         />
                     </div>
@@ -110,17 +145,16 @@ const ProfilePage = () => {
                         <input
                             type="text"
                             name="desired_job_role"
-                            value={formData.desired_job_role}
+                            value={formData.desired_job_role || ''}
                             onChange={handleChange}
                         />
                     </div>
-                    {/* Add other form fields as needed */}
                     <button type="submit">Save Changes</button>
                     <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
                 </form>
             ) : (
                 // Render the profile information
-                <div>
+                <div className="profile-info">
                     <p><strong>Name:</strong> {userData.name}</p>
                     <p><strong>Email:</strong> {userData.email}</p>
                     <p><strong>Phone Number:</strong> {userData.phone_number}</p>
@@ -129,7 +163,10 @@ const ProfilePage = () => {
                     <p><strong>Profession:</strong> {userData.profession}</p>
                     <p><strong>Desired Job Role:</strong> {userData.desired_job_role}</p>
                     {/* Add other profile information as needed */}
-                    <button onClick={() => setIsEditing(true)}>Edit Profile</button>
+                    <div className="button-group">
+                        <button onClick={() => setIsEditing(true)}>Edit Profile</button>
+                        <button onClick={handleLogout}>Logout</button>
+                    </div>
                 </div>
             )}
         </div>

@@ -1,17 +1,22 @@
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import Select from 'react-select'; // Import react-select
+import './Register.css';
+import { Field } from 'formik';
+import { useHistory } from 'react-router-dom';
+
 
 const RegistrationForm = () => {
-    // Define initial form values
+    const history = useHistory();
     const initialValues = {
         name: '',
         email: '',
         password: '',
         phoneNumber: '',
         education: '',
-        relevantSkills: '',
+        relevantSkills: [],
         profession: '',
         desiredJobRole: '',
         resume: null,
@@ -25,15 +30,17 @@ const RegistrationForm = () => {
         password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
         phoneNumber: Yup.string().matches(/^\d{10}$/, 'Phone number must be 10 digits'),
         education: Yup.string().required('Education is required'),
-        relevantSkills: Yup.string().required('Relevant skills are required'),
+        relevantSkills: Yup.array().required('Relevant skills are required'),
         profession: Yup.string().required('Profession is required'),
         desiredJobRole: Yup.string().required('Desired job role is required'),
         agreeToTerms: Yup.bool().oneOf([true], 'You must agree to the terms and conditions'),
     });
 
     // Handle form submission
-    const handleSubmit = async (values) => {
+    const handleSubmit = async (values, { setSubmitting }) => {
         try {
+            console.log('Submitting form with values:', values);
+    
             // Convert form data to FormData format
             const formData = new FormData();
             formData.append('name', values.name);
@@ -41,13 +48,13 @@ const RegistrationForm = () => {
             formData.append('password', values.password);
             formData.append('phone_number', values.phoneNumber);
             formData.append('education', values.education);
-            formData.append('relevant_skills', values.relevantSkills);
+            formData.append('relevant_skills', values.relevantSkills.join(',')); // Join relevant skills array into a comma-separated string
             formData.append('profession', values.profession);
             formData.append('desired_job_role', values.desiredJobRole);
             if (values.resume) {
                 formData.append('resume', values.resume);
             }
-
+    
             const url = '/api/register';
     
             const response = await axios.post(url, formData, {
@@ -56,32 +63,108 @@ const RegistrationForm = () => {
                 },
             });
     
-                 // Handle successful registration
-        if (response.status === 201) {
-            alert('User registered successfully');
-        } else {
-            // Handle unexpected status codes
-            alert(`Unexpected response code: ${response.status}`);
+            // Handle successful registration
+            if (response.status === 201) {
+                console.log('User registered successfully');
+                alert('User registered successfully');
+                history.push('/login');
+            } else {
+                // Handle unexpected status codes
+                console.error('Unexpected response code:', response.status);
+                alert(`Unexpected response code: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            // Extract the error message from the response if available
+            if (error.response && error.response.data) {
+                console.error('Registration failed:', error.response.data.error);
+                alert(`Registration failed: ${error.response.data.error}`);
+            } else {
+                console.error('An error occurred during registration');
+                alert('An error occurred during registration');
+            }
+        } finally {
+            // Ensure setSubmitting is called regardless of success or failure
+            setSubmitting(false);
         }
-    } catch (error) {
-        console.error('Error submitting form:', error);
+    };
+    
+
+    // Define options for the profession dropdown list
+    const professionOptions = [
+        { value: 'Software Developer', label: 'Software Developer' },
+        { value: 'Data Scientist', label: 'Data Scientist' },
+        { value: 'Project Manager', label: 'Project Manager' },
+        { value: 'Graphic Designer', label: 'Graphic Designer' },
+        { value: 'Product Manager', label: 'Product Manager' },
+        { value: 'Accountant', label: 'Accountant' },
+        { value: 'Human Resources Manager', label: 'Human Resources Manager' },
+        { value: 'Sales Representative', label: 'Sales Representative' },
+        { value: 'Marketing Specialist', label: 'Marketing Specialist' },
+        { value: 'Financial Analyst', label: 'Financial Analyst' },
+        { value: 'Business Analyst', label: 'Business Analyst' },
+        { value: 'Civil Engineer', label: 'Civil Engineer' },
+        { value: 'Mechanical Engineer', label: 'Mechanical Engineer' },
+        { value: 'Electrical Engineer', label: 'Electrical Engineer' },
+        { value: 'Nurse', label: 'Nurse' },
+        { value: 'Doctor', label: 'Doctor' },
+        { value: 'Teacher', label: 'Teacher' },
+        { value: 'Professor', label: 'Professor' },
+        { value: 'Pharmacist', label: 'Pharmacist' },
+        { value: 'Lawyer', label: 'Lawyer' },
+        { value: 'Web Designer', label: 'Web Designer' },
+        { value: 'Journalist', label: 'Journalist' },
+        { value: 'Chef', label: 'Chef' },
+        { value: 'Musician', label: 'Musician' },
         
-        // Extract the error message from the response if available
-        if (error.response && error.response.data) {
-            alert(`Registration failed: ${error.response.data.error}`);
-        } else {
-            alert('An error occurred during registration');
-        }
-    }
-};
+    ];
+    
+
+    // Define options for the relevant skills multi-select
+    const skillsOptions = [
+        { value: 'JavaScript', label: 'JavaScript' },
+        { value: 'Python', label: 'Python' },
+        { value: 'Java', label: 'Java' },
+        { value: 'C#', label: 'C#' },
+        { value: 'React', label: 'React' },
+        { value: 'Angular', label: 'Angular' },
+        { value: 'Node.js', label: 'Node.js' },
+        { value: 'SQL', label: 'SQL' },
+        { value: 'HTML', label: 'HTML' },
+        { value: 'CSS', label: 'CSS' },
+        { value: 'Adobe Photoshop', label: 'Adobe Photoshop' },
+        { value: 'Adobe Illustrator', label: 'Adobe Illustrator' },
+        { value: 'Project Management', label: 'Project Management' },
+        { value: 'Communication', label: 'Communication' },
+        { value: 'Problem Solving', label: 'Problem Solving' },
+        { value: 'Critical Thinking', label: 'Critical Thinking' },
+        { value: 'Leadership', label: 'Leadership' },
+        { value: 'Time Management', label: 'Time Management' },
+        { value: 'Writing', label: 'Writing' },
+        { value: 'Public Speaking', label: 'Public Speaking' },
+        { value: 'Graphic Design', label: 'Graphic Design' },
+        { value: 'Machine Learning', label: 'Machine Learning' },
+        { value: 'Data Analysis', label: 'Data Analysis' },
+        { value: 'Marketing', label: 'Marketing' },
+        { value: 'Sales', label: 'Sales' },
+        { value: 'Customer Service', label: 'Customer Service' },
+        { value: 'Accounting', label: 'Accounting' },
+        { value: 'Finance', label: 'Finance' },
+        { value: 'Healthcare', label: 'Healthcare' },
+        // Add more skills as needed
+    ];
+    
 
     return (
-        <Formik
+
+
+    <div className="form-container"> 
+         <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
         >
-            {({ setFieldValue }) => (
+            {({ setFieldValue, values }) => (
                 <Form>
                     <div>
                         <label htmlFor="name">Name</label>
@@ -110,12 +193,25 @@ const RegistrationForm = () => {
                     </div>
                     <div>
                         <label htmlFor="relevantSkills">Relevant Skills</label>
-                        <Field id="relevantSkills" name="relevantSkills" type="text" />
+                        <Select
+                            id="relevantSkills"
+                            name="relevantSkills"
+                            options={skillsOptions}
+                            isMulti // Allow multiple selections
+                            value={values.relevantSkills}
+                            onChange={(selectedOptions) => setFieldValue('relevantSkills', selectedOptions)}
+                        />
                         <ErrorMessage name="relevantSkills" component="div" />
                     </div>
                     <div>
                         <label htmlFor="profession">Profession</label>
-                        <Field id="profession" name="profession" type="text" />
+                        <Select
+                          id="profession"
+                          name="profession"
+                          options={professionOptions}
+                          value={{ value: values.profession, label: values.profession }} // Change here
+                          onChange={(selectedOption) => setFieldValue('profession', selectedOption.value)}
+/>
                         <ErrorMessage name="profession" component="div" />
                     </div>
                     <div>
@@ -142,6 +238,8 @@ const RegistrationForm = () => {
                 </Form>
             )}
         </Formik>
+
+        </div>
     );
 };
 

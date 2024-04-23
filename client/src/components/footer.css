@@ -1,0 +1,25 @@
+/* Footer.css */
+.footer {
+    background-color: #333; /* Dark background color */
+    color: #fff; /* White text color */
+    padding: 20px; /* Padding around the footer */
+    text-align: center; /* Center the text */
+    position: fixed; /* Position the footer */
+    bottom: 0; /* Align to the bottom */
+    width: 100%; /* Full width */
+}
+.footer-content {
+    max-width: 1200px; /* Maximum width of the footer content */
+    margin: 0 auto; /* Center the footer content */
+}
+
+.social-links a {
+    color: #ffffff; /* White color for icons */
+    margin: 0 10px; /* Add spacing between icons */
+    text-decoration: none; /* Remove underline from links */
+    font-size: 24px; /* Increase icon size */
+}
+
+.social-links a:hover {
+    color: #00aaff; /* Change color on hover */
+}

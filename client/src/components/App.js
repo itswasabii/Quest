@@ -1,47 +1,45 @@
-
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import RegistrationForm from './RegistrationForm';
 import ProfilePage from './ProfilePage';
-import LoginForm from './Login'; // Import the LoginForm component
-import Homepage from './Homepage'; // Import the Homepage component
 import Navbar from './Navbar';
-import ProtectedRoute from './ProtectedRoutes'; // Import the ProtectedRoute component
-import ProfilePage from './ProfilePage'; // Import the ProfilePage component
-import Navbar from './Navbar.js';
-import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
-import AdminPanel from "./AdminPanel";
-import '/home/victor/phase-4/quest/client/src/index.css'
+import LoginForm from './Login';
+import HomePage from './HomePage.js'; // Import the HomePage component
+import Footer from './footer.js'; 
+import AdminPanel from './AdminPanel.js'; 
+import Dashboard from './Dashboard.js'; 
+
 
 function App() {
-  return (
-    <><div className="App">
-      <Navbar />
+    return (
+        <div className="App">
+            <Navbar />
 
-      {/* Use Switch to handle routing */}
-      <Switch>
-        {/* Route for registration form */}
-        <Route path="/register" component={RegistrationForm} />
+            {/* Use Switch to handle routing */}
+            <Switch>
+                {/* Route for registration form */}
+                <Route path="/register" component={RegistrationForm} />
+                
+                {/* Route for profile page */}
+                <Route path="/profile" component={ProfilePage} />
+                
+                {/* Route for login form */}
+                <Route path="/login" component={LoginForm} />
+                
+                {/* Default route for the home page */}
+                <Route path="/home-page" exact component={HomePage} /> 
+                
+                {/* Render HomePage on the root path */}
+                <Route path="/Admin" component={AdminPanel} />
 
-        {/* Route for login form */}
-        <Route path="/login" component={LoginForm} />
+                <Route path="/Dashboard" component={Dashboard} />
+                
+            </Switch>
 
-        {/* Protected route for profile page */}
-        <ProtectedRoute path="/profile" component={ProfilePage} />
-
-        {/* Protected route for homepage */}
-        <ProtectedRoute path="/home" component={Homepage} />
-
-        {/* Define a default route for the home page */}
-        <Route path="/" exact>
-          <h2>Welcome to the Home Page</h2>
-          {/* Add other components or content for the home page here */}
-        </Route>
-      </Switch>
-    </div><AdminPanel /></>
-
-  );
+            {/* Render AdminPanel outside of the Switch */}
+            <Footer />
+        </div>
+    );
 }
 
 export default App;

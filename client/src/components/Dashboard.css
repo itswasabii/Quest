@@ -1,0 +1,43 @@
+.user-dashboard {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-bottom: 100%;
+}
+
+.job-listings {
+    margin-bottom: 20px;
+}
+
+.user-applications {
+    margin-top: 20px;
+}
+
+.job-listings ul,
+.user-applications ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.job-listings li,
+.user-applications li {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.job-listings button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.job-listings button:hover {
+    background-color: #0056b3;
+}

@@ -1,0 +1,33 @@
+/* Styles for registration form container */
+.registration-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+}
+
+/* Form styling */
+form {
+    width: 400px; /* Adjust width as needed */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff; /* Background color */
+}
+/* CSS to center the form container */
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    width: 100%; /* Full viewport width */
+}
+
+.registration-form {
+    width: 50%; /* Set form width, adjust as needed */
+    padding: 20px;
+    border: 1px solid #ccc; /* Add a border for visual separation */
+    border-radius: 10px; /* Add rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    background-color: white; /* Set background color */
+}

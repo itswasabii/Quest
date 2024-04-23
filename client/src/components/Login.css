@@ -1,0 +1,49 @@
+/* LoginForm.css */
+
+.login-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-form {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%; /* Set the width of the form */
+    max-width: 400px; /* Limit the maximum width of the form */
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-input {
+    width: 100%; /* Make input fields fill the width of the form */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.submit-button {
+    width: 100%; /* Make the button fill the width of the form */
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}

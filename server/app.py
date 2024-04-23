@@ -7,17 +7,36 @@ from flask_cors import CORS
 import os
 import uuid
 from flask_mail import Mail, Message
+from werkzeug.security import check_password_hash
+from datetime import datetime, timedelta
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask import render_template_string
+from sqlalchemy import Column, Boolean, Engine
+from sqlalchemy import text
+from flask import Flask, jsonify
+from sqlalchemy import create_engine
+
+
+
 
 # Initialize the Flask app
 app = Flask(__name__)
+
+# Initialize JWTManager
+jwt = JWTManager(app)
+
+app.config['JWT_SECRET_KEY'] = '4927'
 
 # Configure CORS
 CORS(app, origins=["http://localhost:3000"])
 
 # Configure database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobs.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobss.db'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+
+verification_tokens = {}
 
 # Initialize Mail
 app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
@@ -27,6 +46,9 @@ app.config['MAIL_PASSWORD'] = '99a571bbd34f7c'
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
+
+
+
 
 # Define JobListing model
 class JobListing(db.Model):
@@ -56,10 +78,13 @@ class User(db.Model):
     resume = db.Column(db.String(100), nullable=True)
     is_email_verified = db.Column(db.Boolean, default=False)
     email_verification_token = db.Column(db.String(100), nullable=True)
+    is_locked = db.Column(db.Boolean, default=False)
+    is_disabled = db.Column(db.Boolean, default=False)
 
-# Initialize database
-with app.app_context():
-    db.create_all()
+def set_email_verified(self, status=True):
+        self.is_email_verified = status
+        db.session.commit()
+
 
 # Define a schema for serializing User data
 class UserSchema(ma.SQLAlchemyAutoSchema):
@@ -68,6 +93,22 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
+
+
+@app.route('/test-db-connection')
+def test_db_connection():
+    try:
+        # Try to connect to the database
+        with Engine.connect() as connection:
+            # If connection succeeds, return success message
+            return jsonify({'message': 'Database connection successful'})
+    except Exception as e:
+        # If connection fails, return error message
+        return jsonify({'error': 'Failed to connect to the database', 'details': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 @app.route('/admin/joblistings', methods=['GET', 'POST'])
 def admin_job_listings():
@@ -96,25 +137,57 @@ def admin_applications():
         else:
             return jsonify({'error': 'Application not found'}), 404
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-    users = {'example@example.com': 'password'}  # Moved the users dictionary here
-    if email in users and users[email] == password:
-        return jsonify({'message': 'Login successful', 'token': 'dummy-token'}), 200
+    
+    # Query the user from the database
+    user = User.query.filter_by(email=email).first()
+    
+    if user:
+        # Check if the user's email is verified
+        if not user.is_email_verified:
+            return jsonify({'error': 'Email not verified'}), 403
+        
+        # Check if the user's account is locked or disabled
+        if user.is_locked or user.is_disabled:
+            return jsonify({'error': 'Account locked or disabled'}), 403
+        
+        # Check if the password is correct
+        if check_password_hash(user.password, password):
+            # Authentication successful, generate JWT token
+            access_token = create_access_token(identity=user.id)
+            return jsonify({'message': 'Login successful', 'access_token': access_token}), 200
+        else:
+            # Invalid password
+            return jsonify({'error': 'Invalid credentials'}), 401
     else:
-        return jsonify({'error': 'Invalid credentials'}), 401
+        # User not found
+        return jsonify({'error': 'User not found'}), 404
+
+    
 
 @app.route('/logout', methods=['POST'])
 def logout():
     return jsonify({'message': 'Logout successful'}), 200
 
+def extract_jwt_token():
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+        return auth_header.split(' ')[1]
+    return None
+
 @app.route('/api/user/profile', methods=['GET', 'PUT'])
+@jwt_required()  # This decorator ensures that the request contains a valid JWT token
 def user_profile():
-    user_email = 'user@example.com'
-    user = User.query.filter_by(email=user_email).first()
+    auth_token = extract_jwt_token()
+    if not auth_token:
+        return jsonify({'error': 'Authorization token is missing'}), 401
+
+    user_id = get_jwt_identity()  # This function returns the identity (user id) stored in the JWT token
+    user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
@@ -132,27 +205,45 @@ def user_profile():
         return jsonify(user_schema.dump(user))
 
 
-# Define the function to send verification email
+#from flask import render_template_string
+
 def send_verification_email(user_email, token):
-    # Create the verification link
     verification_link = f"http://localhost:5555/api/verify-email/{token}"
     
-    # Create the message
+    # Render the email body using an HTML template
+    email_body = render_template_string(
+        """
+        <p>Please verify your email by clicking on the following link:</p>
+        <a href="{{ verification_link }}">{{ verification_link }}</a>
+        """,
+        verification_link=verification_link
+    )
+
     msg = Message(
         subject='Verify Your Email Address',
         sender='your-email@gmail.com',
         recipients=[user_email]
     )
-    msg.body = f"Please verify your email by clicking on the following link: {verification_link}"
+    msg.html = email_body
     
     # Send the email
     mail.send(msg)
-
-
+    
 @app.route('/api/register', methods=['POST'])
 def register_user():
     try:
         data = request.form
+
+        # Check if 'resume' field exists in the request files
+        if 'resume' not in request.files:
+            return jsonify({'error': 'Resume file is required'}), 400
+        
+        resume_file = request.files['resume']
+        resume_filename = save_resume(resume_file)
+
+        if not resume_filename:
+            return jsonify({'error': 'Failed to save resume'}), 500
+
         required_fields = ['name', 'email', 'password', 'education', 'relevant_skills', 'profession', 'desired_job_role']
         for field in required_fields:
             if field not in data or not data[field]:
@@ -164,17 +255,11 @@ def register_user():
 
         verification_token = str(uuid.uuid4())
         hashed_password = generate_password_hash(data['password'])
-        RESUME_DIR = os.path.join(app.root_path, 'resumes')
-        if not os.path.exists(RESUME_DIR):
-            os.makedirs(RESUME_DIR)
-        resume = None
-        if 'resume' in request.files:
-            resume_file = request.files['resume']
-            if resume_file:
-                resume_filename = os.path.join(RESUME_DIR, resume_file.filename)
-                resume_file.save(resume_filename)
-                resume = resume_filename
-        
+
+        # Send verification email
+        send_verification_email(data['email'], verification_token)
+
+        # Create new user
         new_user = User(
             name=data['name'],
             email=data['email'],
@@ -184,40 +269,49 @@ def register_user():
             relevant_skills=data['relevant_skills'],
             profession=data['profession'],
             desired_job_role=data['desired_job_role'],
-            resume=resume,
+            resume=resume_filename,
             email_verification_token=verification_token
         )
         db.session.add(new_user)
+
+        # Save verification token and user email in the database
+        new_user.email_verification_token = verification_token
         db.session.commit()
 
-        send_verification_email(data['email'], verification_token)
         return jsonify(user_schema.dump(new_user)), 201
         
     except Exception as e:
         print(f'Error registering user: {e}')
         return jsonify({'error': 'Internal server error'}), 500
 
+
+    
+def save_resume(resume_file):
+        if resume_file:
+           resume_filename = f"{uuid.uuid4()}.pdf"  # Generate unique filename
+           resume_path = os.path.join(app.root_path, 'resumes', resume_filename)
+           resume_file.save(resume_path)
+           return resume_filename
+        return None
+
 @app.route('/api/verify-email/<token>', methods=['GET'])
 def verify_email(token):
     try:
-        serializer = Serializer(app.config['SECRET_KEY'], salt='email-verification')
-        email = serializer.loads(token, max_age=3600)
-        user = User.query.filter_by(email=email).first()
-        if user is None:
-            return jsonify({'error': 'Invalid token or user not found'}), 400
-        
-        if user.is_email_verified:
-            return jsonify({'message': 'Email already verified'}), 200
-        
-        user.is_email_verified = True
-        db.session.commit()
-        
-        return jsonify({'message': 'Email verified successfully'}), 200
-    
+        # Find user by verification token
+        user = User.query.filter_by(email_verification_token=token).first()
+        if user:
+            # Update user's email verification status
+            user.is_email_verified = True
+            user.email_verification_token = None
+            db.session.commit()
+            return jsonify({'message': 'Email verified successfully'}), 200
+        else:
+            return jsonify({'error': 'Invalid verification token'}), 400
+
     except Exception as e:
-        print(e)
-        return jsonify({'error': 'Invalid or expired token'}), 400
-    
+        print(f'Error verifying email: {e}')
+        return jsonify({'error': 'Internal server error'}), 500
+
 @app.route('/user/applications/<int:user_id>', methods=['GET'])
 def get_user_applications(user_id):
     user_applications = UserApplication.query.filter_by(user_id=user_id).all()
@@ -237,6 +331,8 @@ def get_user_applications(user_id):
 def get_job_listings():
     listings = JobListing.query.all()
     return jsonify([{'id': listing.id, 'title': listing.title, 'description': listing.description, 'status': listing.status} for listing in listings])
+
+
 @app.route('/api/apply', methods=['POST'])
 def apply_for_job():
     data = request.json
@@ -267,6 +363,14 @@ def update_application_status():
         return jsonify({'message': 'Application status updated successfully'}), 200
     else:
         return jsonify({'error': 'Application not found'}), 404
+
+def add_is_locked_column():
+    # Create a SQL query to add the column to the table
+    query = text('ALTER TABLE user ADD COLUMN is_locked BOOLEAN DEFAULT FALSE')
+    
+    # Execute the SQL query
+    with db.engine.connect() as connection:
+        connection.execute(query)
 
 
 if __name__ == '__main__':

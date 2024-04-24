@@ -106,8 +106,6 @@ def test_db_connection():
         # If connection fails, return error message
         return jsonify({'error': 'Failed to connect to the database', 'details': str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
 
 @app.route('/admin/joblistings', methods=['GET', 'POST'])
@@ -372,6 +370,5 @@ def add_is_locked_column():
     with db.engine.connect() as connection:
         connection.execute(query)
 
-
-if __name__ == '__main__':
-    app.run( host='0.0.0.0', port=5555, debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0',port=5555, debug=True)

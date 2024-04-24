@@ -15,9 +15,7 @@ from sqlalchemy import Column, Boolean, Engine
 from sqlalchemy import text
 from flask import Flask, jsonify
 from sqlalchemy import create_engine
-from flask import redirect, url_for
-from flask import send_from_directory
-
+from flask import Flask, send_from_directory, render_template
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -371,14 +369,14 @@ def add_is_locked_column():
         connection.execute(query)
 
 
-@app.route('/')
-def serve_react_app():
-    return send_from_directory('server/static', 'index.html')
+@@app.route('/')
+def home():
+    return render_template('index.html')
 
-# Route to serve static files from the React build directory
+# Route to serve static files (CSS, JS, images, etc.)
 @app.route('/static/<path:path>')
-def serve_static_files(path):
-    return send_from_directory('server/static', path)
+def serve_static(path):
+    return send_from_directory('static', path)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5555, debug=True)

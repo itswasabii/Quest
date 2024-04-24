@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the app.py file into the container at /app
 COPY server/app.py /app/app.py
 
+# Install Flask and its dependencies
+RUN pip install pipfile
+
 # Make port 5555 available to the world outside this container
 EXPOSE 5555
 

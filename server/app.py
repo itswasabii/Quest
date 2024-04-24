@@ -370,14 +370,11 @@ def add_is_locked_column():
     with db.engine.connect() as connection:
         connection.execute(query)
 
-
 @app.route('/')
-def serve_react_app():
-    return send_from_directory('static', 'index.html')
+def index():
+    return 'Welcome to your Flask-React application!'
 
-@app.route('/static/<path:path>')
-def serve_static_files(path):
-    return send_from_directory('static', path)
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5555, debug=True)

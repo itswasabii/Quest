@@ -15,7 +15,7 @@ from sqlalchemy import Column, Boolean, Engine
 from sqlalchemy import text
 from flask import Flask, jsonify
 from sqlalchemy import create_engine
-
+from flask import redirect, url_for
 
 
 
@@ -369,6 +369,11 @@ def add_is_locked_column():
     # Execute the SQL query
     with db.engine.connect() as connection:
         connection.execute(query)
+
+@app.route('/')
+def index():
+    # Assuming your homepage URL is '/home'
+    return redirect(url_for('homepage'))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5555, debug=True)

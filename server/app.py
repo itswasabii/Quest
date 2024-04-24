@@ -16,7 +16,7 @@ from sqlalchemy import text
 from flask import Flask, jsonify
 from sqlalchemy import create_engine
 from flask import redirect, url_for
-
+from flask import send_from_directory
 
 
 # Initialize the Flask app
@@ -370,10 +370,14 @@ def add_is_locked_column():
     with db.engine.connect() as connection:
         connection.execute(query)
 
+
 @app.route('/')
-def index():
-    # Assuming your homepage URL is '/home'
-    return redirect(url_for('homepage'))
+def serve_react_app():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/static/<path:path>')
+def serve_static_files(path):
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5555, debug=True)

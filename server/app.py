@@ -368,10 +368,9 @@ def add_is_locked_column():
     with db.engine.connect() as connection:
         connection.execute(query)
 
-
 @app.route('/')
 def home():
-      return send_from_directory('static', 'index.html')
+    return 'This is quest app'
 
 # Route to serve static files (CSS, JS, images, etc.)
 @app.route('/static/<path:path>')

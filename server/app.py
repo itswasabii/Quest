@@ -370,9 +370,6 @@ def add_is_locked_column():
     with db.engine.connect() as connection:
         connection.execute(query)
 
-@app.route('/')
-def index():
-    return 'Welcome to your Flask-React application!'
 
 @app.route('/')
 def serve_react_app():

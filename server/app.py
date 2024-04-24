@@ -373,12 +373,12 @@ def add_is_locked_column():
 
 @app.route('/')
 def serve_react_app():
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('server/static', 'index.html')
 
 # Route to serve static files from the React build directory
 @app.route('/static/<path:path>')
 def serve_static_files(path):
-    return send_from_directory('static', path)
+    return send_from_directory('server/static', path)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5555, debug=True)

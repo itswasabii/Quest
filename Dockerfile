@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy the app.py file into the container at /app
 COPY server/app.py /app/app.py
 
-# Install Flask and its dependencies
-RUN pipenv install pipfile
+# Copy the requirements.txt file into the container at /app
+COPY requirements.txt /app/requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 5555 available to the world outside this container
 EXPOSE 5555

@@ -8,7 +8,7 @@ WORKDIR /app
 COPY server/app.py /app/app.py
 
 # Install Flask and its dependencies
-RUN pipenv install pipfilr
+RUN pipenv install pipfile
 
 # Make port 5555 available to the world outside this container
 EXPOSE 5555

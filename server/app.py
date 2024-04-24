@@ -15,7 +15,7 @@ from sqlalchemy import Column, Boolean, Engine
 from sqlalchemy import text
 from flask import Flask, jsonify
 from sqlalchemy import create_engine
-from flask import Flask, send_from_directory
+
 
 
 
@@ -94,9 +94,6 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
-@app.route('/')
-def serve_react_app():
-    return send_from_directory('client/build', 'index.html')
 
 @app.route('/test-db-connection')
 def test_db_connection():

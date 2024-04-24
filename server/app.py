@@ -374,7 +374,7 @@ def serve_react_app():
 
 @app.route('/static/<path:path>')
 def serve_static_files(path):
-    return send_from_directory('rserver/static', path)
+    return send_from_directory('server/static', path)
 
 
 if __name__ == "__main__":

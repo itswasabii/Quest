@@ -371,7 +371,7 @@ def add_is_locked_column():
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+      return send_from_directory('static', 'index.html')
 
 # Route to serve static files (CSS, JS, images, etc.)
 @app.route('/static/<path:path>')

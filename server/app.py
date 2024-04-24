@@ -369,7 +369,7 @@ def add_is_locked_column():
         connection.execute(query)
 
 
-@@app.route('/')
+@app.route('/')
 def home():
     return render_template('index.html')
 
